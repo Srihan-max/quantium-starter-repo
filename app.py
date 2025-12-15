@@ -4,20 +4,17 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 
-# Load data
 df = pd.read_csv("data/sales.csv")
 
-# Create Dash app
 app = dash.Dash(__name__)
 app.title = "Pink Morsels Sales Visualiser"
 
-# App layout
 app.layout = html.Div(
     className="container",
     children=[
         html.H1("Pink Morsels Sales by Region"),
 
-        # Radio buttons
+        
         dcc.RadioItems(
             id="region-radio",
             options=[
@@ -32,12 +29,10 @@ app.layout = html.Div(
             inline=True
         ),
 
-        # Line chart
         dcc.Graph(id="sales-line-chart")
     ]
 )
 
-# Callback to update chart
 @app.callback(
     Output("sales-line-chart", "figure"),
     Input("region-radio", "value")
