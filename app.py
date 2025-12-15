@@ -1,32 +1,64 @@
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
 import pandas as pd
-from dash import Dash, dcc, html
 import plotly.express as px
 
-df = pd.read_csv("formatted_sales.csv")
+# Load data
+df = pd.read_csv("data/sales.csv")
 
-df['date'] = pd.to_datetime(df['date'])
+# Create Dash app
+app = dash.Dash(__name__)
+app.title = "Pink Morsels Sales Visualiser"
 
-daily_sales = df.groupby('date')['sales'].sum().reset_index()
+# App layout
+app.layout = html.Div(
+    className="container",
+    children=[
+        html.H1("Pink Morsels Sales by Region"),
 
-daily_sales = daily_sales.sort_values('date')
+        # Radio buttons
+        dcc.RadioItems(
+            id="region-radio",
+            options=[
+                {"label": "All", "value": "all"},
+                {"label": "North", "value": "north"},
+                {"label": "East", "value": "east"},
+                {"label": "South", "value": "south"},
+                {"label": "West", "value": "west"},
+            ],
+            value="all",
+            className="radio-group",
+            inline=True
+        ),
 
-fig = px.line(
-    daily_sales,
-    x='date',
-    y='sales',
-    title='Pink Morsel Sales Over Time',
-    labels={'date': 'Date', 'sales': 'Total Sales ($)'}
-
+        # Line chart
+        dcc.Graph(id="sales-line-chart")
+    ]
 )
 
-app = Dash(__name__)
+# Callback to update chart
+@app.callback(
+    Output("sales-line-chart", "figure"),
+    Input("region-radio", "value")
+)
+def update_chart(selected_region):
+    if selected_region == "all":
+        filtered_df = df
+    else:
+        filtered_df = df[df["region"] == selected_region]
 
-app.layout = html.Div(children=[
-    html.H1("Soul Foods Pink Morsel Sales Visualizer", style={'textAlign': 'center'}),
-    dcc.Graph(figure=fig)
-])
+    fig = px.line(
+        filtered_df,
+        x="date",
+        y="sales",
+        color="region",
+        title="Pink Morsels Sales Over Time"
+    )
+
+    fig.update_layout(template="plotly_white")
+    return fig
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
+if __name__ == "__main__":
+    app.run_server(debug=True)
