@@ -1,10 +1,13 @@
+
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 
-df = pd.read_csv("data/sales.csv")
+# Use the pre-processed formatted_sales.csv
+df = pd.read_csv("formatted_sales.csv")
+
 
 app = dash.Dash(__name__)
 app.title = "Pink Morsels Sales Visualiser"
